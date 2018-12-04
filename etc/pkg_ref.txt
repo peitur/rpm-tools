@@ -1,0 +1,4 @@
+kernel
+Systemd
+openssh-server
+httpd
