@@ -51,8 +51,9 @@ def unique_packages( pkglist ):
 def get_package_deps( pkg, **opt ):
     res = list()
     newest = ""
-    if 'newest' in opt and opt['newest'] in (True, False):
+    if 'newest' in opt and opt['newest'] in (True, False) and opt['newest']:
         newest = "-n"
+
     deps = run( "repotrack -u %s %s" % ( newest, pkg ))
 
     return [ os.path.basename( f ) for f in deps ]
@@ -60,6 +61,16 @@ def get_package_deps( pkg, **opt ):
 ################################################################################
 ## Local file operaitons
 ################################################################################
+def read_tree( path, rx=r".*" ):
+    result = list()
+    for f in os.listdir( path ):
+        p = "%s/%s" % ( path, f )
+        if os.path.isdir( p ):
+            result += read_tree( p, rx )
+        else:
+            if re.search( rx, f ):
+                result.append( p )
+    return result
 
 def _read_text( filename ):
     result = list()
