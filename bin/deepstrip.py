@@ -110,6 +110,9 @@ if __name__ == "__main__":
     allPackages = pkg_list( opt['ref'] )
     uniquePackages = unique_packages( allPackages )
 
+    print("# Found %s packages" % ( len(allPackages)))
+    print("# Found %s unique packages" % ( len( uniquePackages ) ))
+
     wantPackages = dict()
     wantFiles = dict()
     seenPackages = dict()
