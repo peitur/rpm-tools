@@ -153,15 +153,20 @@ if __name__ == "__main__":
     seenPackages = dict()
     for u in uniquePackages:
         print("# Checking package %s: %s / %s" % ( u, len( wantPackages.keys() ), len( uniquePackages ) ) )
-        for d in check_package_deps( u, newest=True ):
-            if d not in wantFiles:
-                wantFiles[ d ] = 0
+        if opt['mode'] == "check":
+            for d in check_package_deps( u, newest=True ):
+                if d not in wantFiles: wantFiles[ d ] = 0
+                if d not in wantPackages: wantPackages[ u ] = list()
+                wantPackages[ u ].append( d )
+                wantFiles[ d ] += 1
 
-            if d not in wantPackages:
-                wantPackages[ u ] = list()
-
-            wantPackages[ u ].append( d )
-            wantFiles[ d ] += 1
+        elif opt['mode'] == "download":
+            for d in  get_package_deps( u, newest=True, dpath=opt['dpath'] ):
+                p = re.split("\s+", d )
+                if p[1] not in wantFiles: wantFiles[ p[1] ] = 0
+                if p[1] not in wantPackages: wantPackages[ u ] = list()
+                wantPackages[ u ].append( p[1] )
+                wantFiles[ p[1] ] += 1
 
     print("# Want %s packages" % ( len(list( wantFiles.keys() )) ) )
     print( "\n".join( sorted( list( wantFiles.keys() ) ) ) )
