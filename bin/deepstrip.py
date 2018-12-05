@@ -135,7 +135,7 @@ if __name__ == "__main__":
         if opt['mode'] not in ("check","download"):
             raise RuntimeError( "Bad mode")
     except Exception as e:
-        print("ERROR: Need mode [check|download]")
+        print("ERROR: Need mode [check|download] <rfiles>")
         sys.exit(1)
 
 
