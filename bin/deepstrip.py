@@ -51,12 +51,26 @@ def unique_packages( pkglist ):
 def get_package_deps( pkg, **opt ):
     res = list()
     newest = ""
-    if 'newest' in opt and opt['newest'] in (True, False) and opt['newest']:
-        newest = "-n"
+    dpath = "stage"
 
-    deps = run( "repotrack -u %s %s" % ( newest, pkg ))
+    if 'newest' in opt and opt['newest'] in (True, False) and opt['newest']: newest = "-n"
+    if 'dpath' in opt: dpath = opt['dpath']
 
+    if not os.path.exists( dpath ):
+        os.makedirs( dpath )
+
+    deps = run( "repotrack -t -p %s %s %s" % ( dpath, newest, pkg ))
     return [ os.path.basename( f ) for f in deps ]
+
+def check_package_deps( pkg, **opt ):
+    res = list()
+    newest = ""
+
+    if 'newest' in opt and opt['newest'] in (True, False) and opt['newest']: newest = "-n"
+
+    deps = run( "repotrack -t -u %s %s" % ( newest, pkg ))
+    return [ os.path.basename( f ) for f in deps ]
+
 
 ################################################################################
 ## Local file operaitons
@@ -113,7 +127,17 @@ def write_file( filename, data ):
 if __name__ == "__main__":
     opt = dict()
     opt['script'] = sys.argv.pop(0)
+    opt['dpath'] = "stage"
     opt['ref'] = list()
+
+    try:
+        opt['mode'] = sys.argv.pop(0)
+        if opt['mode'] not in ("check","download"):
+            raise RuntimeError( "Bad mode")
+    except Exception as e:
+        print("ERROR: Need mode [check|download]")
+        sys.exit(1)
+
 
     for f in sys.argv:
         opt['ref'] += load_file( f )
@@ -129,7 +153,7 @@ if __name__ == "__main__":
     seenPackages = dict()
     for u in uniquePackages:
         print("# Checking package %s: %s / %s" % ( u, len( wantPackages.keys() ), len( uniquePackages ) ) )
-        for d in get_package_deps( u, newest=True ):
+        for d in check_package_deps( u, newest=True ):
             if d not in wantFiles:
                 wantFiles[ d ] = 0
 
